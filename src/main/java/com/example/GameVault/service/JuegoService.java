@@ -21,7 +21,7 @@ public class JuegoService {
     private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     //metodos
-    public List<Juego> obtenerTodos() {
+    public List<Juego> listarTodos() {
         return juegoRepository.findAll();
     }
 
@@ -58,5 +58,12 @@ public class JuegoService {
             }
         }
         return null;
+    }
+
+    public List<Juego> buscarPorTitulo(String palabra) {
+        if (palabra == null || palabra.trim().isEmpty()) {
+            return listarTodos();
+        }
+        return juegoRepository.findByTituloConntainingIgnoreCase(palabra);
     }
 }
