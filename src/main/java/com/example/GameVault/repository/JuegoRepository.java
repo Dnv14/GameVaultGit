@@ -10,6 +10,8 @@ public interface JuegoRepository extends JpaRepository<Juego, Long> {
 
     List<Juego> findByTituloConntainingIgnoreCase(String titulo);
 
+    List<Juego> findByUsuarioId(Long Id);
+
     List<Juego> findByPrecioLessThan(Double precio);
 
     @Query("SELECT j From Juegos j ORDER BY j.id DESC")
