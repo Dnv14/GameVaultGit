@@ -3,14 +3,19 @@ package com.example.GameVault.repository;
 import com.example.GameVault.model.Juego;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface JuegoRepository extends JpaRepository<Juego, Long> {
 
-    List<Juego> findByTituloConntainingIgnoreCase(String titulo);
+    //Crud sencillo
 
     List<Juego> findByUsuarioId(Long Id);
+
+    //consultas personalizadas
+    List<Juego> findByTituloConntainingIgnoreCase(String titulo);
 
     List<Juego> findByPrecioLessThan(Double precio);
 
