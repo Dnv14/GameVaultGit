@@ -8,6 +8,17 @@
     <body>
 
         <nav>
+            <th:block th:if="${session.usuario_id == null}">
+                <a th:ref="@{/login}">Iniciar Sesión </a>
+                <a th:ref="@{/registro}">Registro </a>
+            </th:block>
+
+            <th:block th:block th:if="${session.usuario_id != null}">
+                <a th:href="@{/mis-juegos}">Mis juegos</a>
+                <a th:href="@{/juegos/nuevos}">Subir Juego</a>
+                <a th:href="@{/logout}">Logout</a>
+            </th:block>
+
             <a th:href="@{/juegos}" class="nav-brand">🎮 GameVault</a>
             <div class="nav-links">
                 <a th:href="@{/juegos}">Catálogo</a>
