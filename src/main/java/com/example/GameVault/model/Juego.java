@@ -5,22 +5,22 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+@Data //Genera getters, setters, toString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "Juegos")
 public class Juego {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String titulo;
 
     @Column(length = 1000)
     private String descripcion;
+
 
     @Column(name = "portada_url")
     private String portadaUrl;
@@ -32,7 +32,7 @@ public class Juego {
     private String categoria;
 
     @ManyToOne
-    @JoinColumn(name = "usuarioId")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
 }

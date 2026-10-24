@@ -3,27 +3,29 @@ package com.example.GameVault.repository;
 import com.example.GameVault.model.Juego;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface JuegoRepository extends JpaRepository<Juego, Long> {
+    List<Juego> findByTituloContainingIgnoreCase(String titulo);
 
-    //Crud sencillo
+    @Query("SELECT j FROM Juego j WHERE LOWER(j.descripcion) LIKE LOWER(CONCAT('%', :palabra, '%'))")
+    List<Juego> buscarPorDescripcion(@Param("palabra") String palabra);
 
-    List<Juego> findByUsuarioId(Long Id);
-
-    //consultas personalizadas
-    List<Juego> findByTituloConntainingIgnoreCase(String titulo);
-
-    List<Juego> findByPrecioLessThan(Double precio);
-
-    @Query("SELECT j From Juegos j ORDER BY j.id DESC")
+    @Query("SELECT j FROM Juego j ORDER BY j.id DESC")
     List<Juego> obtenerJuegosRecientes();
 
-    @Query("SELECT j FROM Juegos j WHERE LOWER(j.descripcion) LIKE LOWER(CONCAT('%',:palabra, '%'))")
-    List<Juego> buscarPorDescripcion(String palabra);
 
+    List<Juego> findByUsuarioId(Long usuarioId);
+
+    @Query("SELECT j FROM Juego j " +
+            "WHERE LOWER(j.titulo) " +
+            "LIKE LOWER(CONCAT('%', :palabra, '%')) " +
+            "OR LOWER(j.categoria) " +
+            "LIKE LOWER(CONCAT('%', :palabra, '%'))")
+    List<Juego> buscarPorTituloOCategoria(@Param("palabra") String palabra);
 
 }

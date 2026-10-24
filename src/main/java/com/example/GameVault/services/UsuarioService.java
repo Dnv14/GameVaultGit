@@ -1,4 +1,4 @@
-package com.example.GameVault.service;
+package com.example.GameVault.services;
 
 import com.example.GameVault.model.Usuario;
 import com.example.GameVault.repository.UsuarioRepository;
@@ -16,38 +16,40 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private  PasswordEncoder passwordEncoder;
 
     @Autowired
     private HttpSession session;
 
-    public Usuario registrarUsuario(Usuario usuario) {
-        usuario.setContrasenia(passwordEncoder.encode(usuario.getContrasenia()));
-
+    public Usuario registrarUsuario(Usuario usuario){
+        usuario.setContrasenia(
+                passwordEncoder.encode(usuario.getContrasenia())
+        );
         return usuarioRepository.save(usuario);
     }
 
-    public Usuario autenticarUsuario(String email, String password) {
+    public Usuario autenticarUsuario(String email, String password){
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
 
-        if (usuarioOpt.isPresent()) {
+        if(usuarioOpt.isPresent()){
             Usuario usuario = usuarioOpt.get();
-            if (passwordEncoder.matches(password, usuario.getContrasenia())) {
+            if(passwordEncoder.matches(password, usuario.getContrasenia())){
                 return usuario;
             }
         }
-        return null;
+        return null; //las credenciales son inválidas
     }
 
-    public Usuario obtenerUsuarioLogeado() {
+    public Usuario obtenerUsuarioLogeado(){
         Long usuarioId = (Long) session.getAttribute("usuario_id");
 
-        if (usuarioId != null) {
+        if(usuarioId != null){
             Optional<Usuario> usuarioOpt = usuarioRepository.findById(usuarioId);
-            if (usuarioOpt.isPresent()) {
+            if(usuarioOpt.isPresent()){
                 return usuarioOpt.get();
             }
         }
+
         return null;
     }
 }

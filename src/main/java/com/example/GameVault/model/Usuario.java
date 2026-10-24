@@ -15,19 +15,17 @@ import java.util.List;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false)
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    List<Juego> juegos;
 
     @Column(nullable = false)
     private String contrasenia;
 
-
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Juego> juegos;
 }

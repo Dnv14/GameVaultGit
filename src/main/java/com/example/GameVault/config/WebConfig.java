@@ -2,10 +2,10 @@ package com.example.GameVault.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -20,16 +20,27 @@ public class WebConfig implements WebMvcConfigurer {
         Path uploadDir = Paths.get("src/main/resources/static/uploads");
         String uploadPath = uploadDir.toFile().getAbsolutePath();
 
-        registry.addResourceHandler("/uploads/**")
+        registry.addResourceHandler("/static/uploads/**")
                 .addResourceLocations("file:/" + uploadPath + "/");
     }
 
     @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authInterceptor).addPathPatterns("/mis-juegos", "/juegos/nuevo", "/juegos/editar/**",
-                "/juegoos/eliminar/**").excludePathPatterns(
-                "/", "/juegos", "login", "registro", "/styles/**", "/uploads"
-        );
-    }
+    public void addInterceptors(InterceptorRegistry registry){
+        registry.addInterceptor(authInterceptor)
+                .addPathPatterns(
+                        "/mis-juegos",
+                        "/juegos/nuevo",
+                        "/juegos/editar/**",
+                        "/juegos/eliminar/**"
+                )
+                .excludePathPatterns(
+                        "/",
+                        "/juegos",
+                        "/login",
+                        "/registro",
+                        "/styles/**",
+                        "/uploads/**"
 
+                );
+    }
 }

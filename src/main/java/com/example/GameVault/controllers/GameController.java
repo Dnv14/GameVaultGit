@@ -2,8 +2,8 @@ package com.example.GameVault.controllers;
 
 import com.example.GameVault.model.Juego;
 import com.example.GameVault.model.Usuario;
-import com.example.GameVault.service.JuegoService;
-import com.example.GameVault.service.UsuarioService;
+import com.example.GameVault.services.JuegoService;
+import com.example.GameVault.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Controller
 public class GameController {
 
-    //autowired
     @Autowired
     private JuegoService juegoService;
 
@@ -25,20 +23,19 @@ public class GameController {
     private UsuarioService usuarioService;
 
 
-    //mapeo de juegos service
     @GetMapping("/fragments-demo")
-    public String fragmentsDemo() {
+    public String fragmentDemo(){
         return "fragments-demo";
     }
 
     @GetMapping({"/", "/juegos"})
     public String listarJuegos(
-            @RequestParam(name = "buscar", required = false) String buscar,
-            Model model) {
+            @RequestParam(name="buscar", required=false) String buscar,
+            Model model){
 
         if (buscar != null && !buscar.isEmpty()) {
             model.addAttribute("juegos", juegoService.buscarPorTitulo(buscar));
-            model.addAttribute("busquedaActual", buscar); // Para mantener el texto en la barra
+            model.addAttribute("busquedaActual", buscar);
         } else {
             model.addAttribute("juegos", juegoService.listarTodos());
         }
@@ -46,10 +43,20 @@ public class GameController {
         return "juegos";
     }
 
+
+    @GetMapping("/mis-juegos")
+    public String dashboard(Model model){
+        Usuario logueado = usuarioService.obtenerUsuarioLogeado();
+
+        model.addAttribute("juegos", juegoService.obtenerJuegosPorUsuario(logueado.getId()));
+        model.addAttribute("usuario", logueado);
+
+        return "mis-juegos";
+    }
+
     @GetMapping("/juegos/nuevo")
     public String mostrarFormulario(Model model) {
         model.addAttribute("juego", new Juego());
-
         return "formulario";
     }
 
@@ -58,7 +65,8 @@ public class GameController {
                                @RequestParam("descripcion") String descripcion,
                                @RequestParam("precio") Double precio,
                                @RequestParam("categoria") String categoria,
-                               @RequestParam("portada") MultipartFile portada) {
+                               @RequestParam("portada") MultipartFile portada){
+
 
         Juego nuevoJuego = new Juego();
         nuevoJuego.setTitulo(titulo);
@@ -67,9 +75,27 @@ public class GameController {
         nuevoJuego.setCategoria(categoria);
 
         nuevoJuego.setUsuario(usuarioService.obtenerUsuarioLogeado());
+
         juegoService.guardarJuego(nuevoJuego, portada);
 
-        return "redirect:/juegos";
+
+        return "redirect:/mis-juegos";
+    }
+
+
+    @GetMapping("/juegos/editar/{id}")
+    public String editarJuego(@PathVariable Long id, Model model) {
+        Juego juego = juegoService.obtenerJuegoPorId(id);
+        Usuario logueado = usuarioService.obtenerUsuarioLogeado();
+
+        // Regla de Negocio: Solo el dueño puede editar su juego
+        if (juego != null && juego.getUsuario().getId() == logueado.getId()) {
+            model.addAttribute("juego", juego);
+            return "formulario"; // Reutilizamos la misma vista del formulario
+        }
+
+        // Si no es el dueño, lo devolvemos a su dashboard
+        return "redirect:/mis-juegos";
     }
 
     @PostMapping("/juegos/editar/{id}")
@@ -83,8 +109,7 @@ public class GameController {
         Juego juegoExistente = juegoService.obtenerJuegoPorId(id);
         Usuario logueado = usuarioService.obtenerUsuarioLogeado();
 
-        // Verificamos propiedad nuevamente antes de modificar
-        if (juegoExistente != null && juegoExistente.getUsuario().getId().equals(logueado.getId())) {
+        if (juegoExistente != null && juegoExistente.getUsuario().getId() == logueado.getId()) {
             juegoExistente.setTitulo(titulo);
             juegoExistente.setDescripcion(descripcion);
             juegoExistente.setPrecio(precio);
@@ -101,35 +126,10 @@ public class GameController {
         Juego juego = juegoService.obtenerJuegoPorId(id);
         Usuario logueado = usuarioService.obtenerUsuarioLogeado();
 
-        // Solo procedemos a borrar si el usuario logueado es el dueño
-        if (juego != null && juego.getUsuario().getId().equals(logueado.getId())) {
-            juegoService.eliminarJuegoPorId(id);
+        if (juego != null && juego.getUsuario().getId() == (logueado.getId())) {
+            juegoService.eliminarJuego(id);
         }
 
-        return "redirect:/mis-juegos";
-    }
-
-
-    //mapeo de usuarios service
-    @GetMapping("/mis-juegos")
-    public String dashboard(Model model) {
-        Usuario usuarioLogueado = usuarioService.obtenerUsuarioLogeado();
-        model.addAttribute("juegos", juegoService.obtenerJuegosPorUsuario(usuarioLogueado.getId()));
-        model.addAttribute("usuario", usuarioLogueado);
-        return "mis-juegos";
-    }
-
-    @GetMapping("/juegos/editar/{id}")
-    public String editarJuego(@PathVariable Long id, Model model) {
-        Juego juego = juegoService.obtenerJuegoPorId(id);
-        Usuario logueado = usuarioService.obtenerUsuarioLogeado();
-
-        // Si el juego existe y el dueño coincide, mostramos el formulario
-        if (juego != null && juego.getUsuario().getId().equals(logueado.getId())) {
-            model.addAttribute("juego", juego);
-            return "formulario"; // Reutilizamos nuestra vista de formulario
-            // Si intenta editar un juego ajeno, lo devolvemos a su panel
-        }
         return "redirect:/mis-juegos";
     }
 }
