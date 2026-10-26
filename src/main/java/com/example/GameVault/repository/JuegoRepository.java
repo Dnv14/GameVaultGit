@@ -1,12 +1,13 @@
 package com.example.GameVault.repository;
 
-import com.example.GameVault.model.Juego;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.example.GameVault.model.Juego;
 
 @Repository
 public interface JuegoRepository extends JpaRepository<Juego, Long> {
@@ -21,6 +22,7 @@ public interface JuegoRepository extends JpaRepository<Juego, Long> {
 
     List<Juego> findByUsuarioId(Long usuarioId);
 
+    
     @Query("SELECT j FROM Juego j " +
             "WHERE LOWER(j.titulo) " +
             "LIKE LOWER(CONCAT('%', :palabra, '%')) " +
